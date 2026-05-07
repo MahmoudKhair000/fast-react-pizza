@@ -2,10 +2,12 @@ import { createBrowserRouter } from 'react-router';
 import { RouterProvider } from 'react-router/dom';
 import Error from './ui/Error';
 import Home from './ui/Home';
-import Menu, { loader as menuLoader } from './featutes/menu/Menu';
-import Cart from './featutes/cart/Cart';
-import Order, { loader as orderLoader } from './featutes/order/Order';
-import CreateOrder, { action as createOrderAction } from './featutes/order/CreateOrder';
+import Menu, { loader as menuLoader } from './features/menu/Menu';
+import Cart from './features/cart/Cart';
+import Order, { loader as orderLoader } from './features/order/Order';
+import CreateOrder, {
+  action as createOrderAction,
+} from './features/order/CreateOrder';
 import AppLayout from './ui/AppLayout';
 
 /* 
@@ -28,17 +30,17 @@ import AppLayout from './ui/AppLayout';
 */
 const router = createBrowserRouter([
   {
-    // The root route that has no path, 
-    // it's called the index route or layout route 
+    // The root route that has no path,
+    // it's called the index route or layout route
     // as it renders the main layout that doesn't change,
     // and nests all other routes inside it.
     element: <AppLayout />,
     errorElement: <Error />,
     children: [
       // Define the routes for the main content area
-      // These routes will be rendered inside the Outlet in AppLayout 
+      // These routes will be rendered inside the Outlet in AppLayout
       // using <Outlet /> component
-      { path: '/', index: true, element: <Home />, },
+      { path: '/', index: true, element: <Home /> },
       // Define the imported loader for the menu route,
       // then use it in the menu component with 'useLoaderData()'
       // with no arguments, because it's already defined in the route.
@@ -48,7 +50,7 @@ const router = createBrowserRouter([
         loader: menuLoader,
         errorElement: <Error />,
       },
-      { path: '/cart', element: <Cart />, },
+      { path: '/cart', element: <Cart /> },
       {
         path: '/order/new',
         element: <CreateOrder />,
@@ -59,9 +61,9 @@ const router = createBrowserRouter([
         path: '/order/:orderId',
         element: <Order />,
         loader: orderLoader,
-        errorElement: <Error />
+        errorElement: <Error />,
       },
-    ]
+    ],
   },
   // A not found route
   // no need to specify error path, cause it's already handled by the layout route with errorElement.
