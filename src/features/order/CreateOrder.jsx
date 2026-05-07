@@ -4,7 +4,7 @@ import { createOrder } from '../../services/apiRestaurant';
 import { useActionData } from 'react-router';
 import Button from '../../ui/Button';
 import { useSelector } from 'react-redux';
-import OrderListItem from './OrderListItem';
+import OrderCartItem from './OrderListItem';
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -93,7 +93,7 @@ function CreateOrder() {
         {cart.length > 0 ? (
           <ul className="mb-1 mt-6 divide-y-2 divide-stone-200 border-y-2 border-stone-200 transition-all duration-500">
             {cart.map((item) => (
-              <OrderListItem item={item} key={item.id} />
+              <OrderCartItem item={item} key={item.id} />
             ))}
           </ul>
         ) : (

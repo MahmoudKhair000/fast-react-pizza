@@ -46,11 +46,11 @@ function Cart() {
       {cart.length > 0 ? (
         <ul className="mb-1 mt-6 divide-y-2 divide-stone-200 border-y-2 transition-all duration-500">
           {cart.map((item) => (
-            <CartItem item={item} key={item.id} />
+            <CartItem item={item} key={item.pizzaId} />
           ))}
         </ul>
       ) : (
-        <p className="mt-6 text-center text-xl text-stone-500">
+        <p className="mt-6 text-center text-2xl text-stone-500">
           Your cart is empty. Add some pizzas!
         </p>
       )}

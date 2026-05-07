@@ -8,7 +8,7 @@ import {
 import QuantityControler from '../../ui/ButtonGroup';
 
 function CartItem({ item }) {
-  const { id: pizzaId, name, quantity, imageUrl, unitPrice, totalPrice } = item;
+  const { pizzaId, name, quantity, imageUrl, unitPrice, totalPrice } = item;
   const dispatch = useDispatch();
 
   const handleIncreaseQuantity = () => {

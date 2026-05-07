@@ -7,7 +7,7 @@ function OrderItem({ item, isLoadingIngredients, ingredients }) {
     <li className="px-5 py-3">
       <div className="flex items-center justify-between gap-2">
         <p>
-          <span className="font-bold">{quantity}&times;</span> {name}
+          <span className="font-bold">{quantity}&nbsp;&times;</span>&nbsp;{name}
         </p>
         <p className="font-bold">{formatCurrency(totalPrice)}</p>
       </div>

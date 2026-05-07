@@ -1,6 +1,6 @@
 import { formatCurrency } from '../../utils/helpers';
 
-function OrderListItem({ item }) {
+function OrderCartItem({ item }) {
   const { name, quantity, imageUrl, unitPrice, totalPrice } = item;
 
   return (
@@ -24,4 +24,4 @@ function OrderListItem({ item }) {
   );
 }
 
-export default OrderListItem;
+export default OrderCartItem;

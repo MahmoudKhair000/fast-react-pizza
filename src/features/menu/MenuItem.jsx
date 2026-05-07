@@ -16,14 +16,16 @@ function MenuItem({ pizza }) {
   const dispatch = useDispatch();
   const { id, name, unitPrice, ingredients, soldOut, imageUrl } = pizza;
 
+  // Create a new array out of cart items' ids
   const cartIds = useSelector((state) =>
-    state.cart.cart.map((item) => item.pizzaId),
+    state.cart.cart.map((cartItem) => cartItem.pizzaId),
   );
-
+  // Check if the menu item is already in cart
   const isInCart = cartIds.includes(id);
 
+  // storing the quantity of the pizza item if found
   const cartQuantity = useSelector((state) => {
-    const item = state.cart.cart.find((cartItem) => cartItem.id === id);
+    const item = state.cart.cart.find((cartItem) => cartItem.pizzaId === id);
     return item ? item.quantity : 1; // Default to 1 if item is not in cart
   });
 
