@@ -5,6 +5,13 @@ import { useActionData } from 'react-router';
 import Button from '../../ui/Button';
 import { useSelector } from 'react-redux';
 import OrderCartItem from './OrderListItem';
+import LinkButton from '../../ui/LinkButton';
+import store from '../../store';
+import { clearCart, getCart, getTotalCartPrice } from '../cart/cartSlice';
+import { addOrder, fetchAddress, getUserName } from '../user/userSlice';
+import { formatCurrency } from '../../utils/helpers';
+import { useState } from 'react';
+import { useDispatch } from 'react-redux';
 
 // https://uibakery.io/regex-library/phone-number
 const isValidPhone = (str) =>
@@ -13,17 +20,34 @@ const isValidPhone = (str) =>
   );
 
 function CreateOrder() {
+  const [withPriority, setWithPriority] = useState(false);
   const navigation = useNavigation();
   const isSubmitting = navigation.state === 'submitting';
 
   const formErrors = useActionData();
+  const dispatch = useDispatch();
 
-  const cart = useSelector((state) => state.cart.cart);
-  const username = useSelector((state) => state.user.username);
+  const cart = useSelector(getCart);
+  const {
+    username,
+    error: addressError,
+    status: addressStatus,
+    position,
+    address,
+  } = useSelector((state) => state.user);
+  const isLoadingAddress = addressStatus === 'loading';
+  const totalCartPrice = useSelector(getTotalCartPrice);
+  const priorityPrice = 0.2 * totalCartPrice;
+  const totalOrderPrice = withPriority
+    ? totalCartPrice + priorityPrice
+    : totalCartPrice;
 
   return (
     <div className="mx-auto mt-8 max-w-2xl space-y-6 px-4">
+      <LinkButton to="/cart">&larr; Back to cart</LinkButton>
+
       <h2 className="mb-8 text-3xl">Ready to order? Let's go!</h2>
+
       {/* <Form method="POST" action="/order/new"> */}
       <Form method="POST" className="ms-5">
         <div className="mb-5 flex w-full flex-col gap-2 sm:flex-row sm:items-center">
@@ -62,38 +86,76 @@ function CreateOrder() {
             </p>
           )}
         </>
-        <div className="mb-5 flex w-full flex-col gap-2 sm:flex-row sm:items-center">
+        <div className="relative mb-5 flex w-full flex-col gap-2 sm:flex-row sm:items-center">
           <label htmlFor="address" className="sm:basis-40">
             Address
           </label>
-          <div className="grow">
+          <div className="relative grow items-center">
             <input
               className="input"
               type="text"
               name="address"
+              disabled={isLoadingAddress}
+              defaultValue={address}
               id="address"
               required
             />
+            {!position.latitude && !position.longitude && (
+              <span className="absolute right-2 top-1.5 z-50 md:right-3 md:top-2.5">
+                <Button
+                  type="xsmall"
+                  disabled={isLoadingAddress}
+                  onClick={(e) => {
+                    e.preventDefault();
+                    dispatch(fetchAddress());
+                  }}
+                >
+                  Get Position
+                </Button>
+              </span>
+            )}
           </div>
         </div>
+
+        <>
+          {addressStatus === 'error' && (
+            <p className="mb-8 rounded-md border border-red-300 bg-red-100 p-2 text-xs text-red-700">
+              {addressError}
+            </p>
+          )}
+        </>
+
         <div className="my-4 flex items-center space-x-3 text-xl">
           <input
+            className="h-5 w-5 accent-yellow-400 outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-1"
             type="checkbox"
             name="priority"
             id="priority"
-            className="h-5 w-5 accent-yellow-400 outline-none focus:ring-2 focus:ring-yellow-300 focus:ring-offset-1"
+            value={withPriority}
+            onChange={(e) => {
+              setWithPriority(e.target.checked);
+            }}
           />
           <label htmlFor="priority">Want to yo give your order priority?</label>
         </div>
         <div>
           {/* we add a hidden input for the cart data to be sent to formData */}
           <input type="hidden" name="cart" value={JSON.stringify(cart)} />
+          <input
+            type="hidden"
+            name="position"
+            value={
+              position.latitude && position.longitude
+                ? `${position.latitude}, ${position.longitude}`
+                : ''
+            }
+          />
         </div>
 
         {cart.length > 0 ? (
           <ul className="mb-1 mt-6 divide-y-2 divide-stone-200 border-y-2 border-stone-200 transition-all duration-500">
             {cart.map((item) => (
-              <OrderCartItem item={item} key={item.id} />
+              <OrderCartItem item={item} key={item.pizzaId} />
             ))}
           </ul>
         ) : (
@@ -102,9 +164,19 @@ function CreateOrder() {
           </p>
         )}
 
+        <>
+          {formErrors?.cart && (
+            <p className="mb-8 rounded-md border border-red-300 bg-red-100 p-2 text-xs text-red-700">
+              {formErrors.cart}
+            </p>
+          )}
+        </>
+
         <div className="mt-4">
           <Button disabled={isSubmitting}>
-            {isSubmitting ? 'Placing order...' : 'Order now'}
+            {isSubmitting
+              ? 'Placing order...'
+              : `Order now for ${formatCurrency(totalOrderPrice)}`}
           </Button>
         </div>
       </Form>
@@ -114,27 +186,36 @@ function CreateOrder() {
 
 export async function action({ request }) {
   const formData = Object.fromEntries(await request.formData());
-
   const newOrderData = {
     ...formData,
-    priority: formData.priority === 'on',
+    priority: formData.priority === 'true',
     cart: JSON.parse(formData.cart),
     createdAt: new Date().toISOString(),
   };
 
+  // // log to the console, because I forgot API don't accept 'id' as a property.
+  // // and we have to use other name like 'pizzaId'.
+  // // I really have to review nodeJs and make some back-end projects.
   // console.log(JSON.parse(formData.cart));
 
   const errors = {};
   if (!isValidPhone(await newOrderData.phone)) {
     errors.phone =
-      'please give us your valid phone number, we might need it to contact you';
+      'Please give us your valid phone number, we might need it to contact you';
   }
-
+  if ((await newOrderData.cart.length) === 0) {
+    errors.cart = 'Your cart is empty, add some pizzas!';
+  }
   if (Object.keys(errors).length > 0) return errors;
 
   const newOrder = await createOrder(newOrderData);
+  // Update the client-side Redux state after the API call,
+  // but note that dispatching from this action function is a side effect
+  // , that is better handled elsewhere
+  // console.log(newOrder.id);
+  store.dispatch(addOrder(newOrder.id));
+  store.dispatch(clearCart());
   return redirect(`/order/${newOrder.id}`);
-  // return null;
 }
 
 export default CreateOrder;

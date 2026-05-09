@@ -1,40 +1,41 @@
-/* eslint-disable no-unused-vars */
-import { Link } from 'react-router-dom';
+// /* eslint-disable no-unused-vars */
+// import { Link } from 'react-router-dom';
 import LinkButton from '../../ui/LinkButton';
 import Button from '../../ui/Button';
 import CartItem from './CartItem';
 import { formatCurrency } from '../../utils/helpers';
-import { useSelector } from 'react-redux';
-import { useDispatch } from 'react-redux';
-import { clearCart } from './cartSlice';
+import { useSelector, useDispatch } from 'react-redux';
+import { clearCart, getCart } from './cartSlice';
+import { getUserName } from '../user/userSlice';
 
-const fakeCart = [
-  {
-    pizzaId: 12,
-    name: 'Mediterranean',
-    quantity: 2,
-    unitPrice: 16,
-    totalPrice: 32,
-  },
-  {
-    pizzaId: 6,
-    name: 'Vegetale',
-    quantity: 1,
-    unitPrice: 13,
-    totalPrice: 13,
-  },
-  {
-    pizzaId: 11,
-    name: 'Spinach and Mushroom',
-    quantity: 1,
-    unitPrice: 15,
-    totalPrice: 15,
-  },
-];
+// const fakeCart = [
+//   {
+//     pizzaId: 12,
+//     name: 'Mediterranean',
+//     quantity: 2,
+//     unitPrice: 16,
+//     totalPrice: 32,
+//   },
+//   {
+//     pizzaId: 6,
+//     name: 'Vegetale',
+//     quantity: 1,
+//     unitPrice: 13,
+//     totalPrice: 13,
+//   },
+//   {
+//     pizzaId: 11,
+//     name: 'Spinach and Mushroom',
+//     quantity: 1,
+//     unitPrice: 15,
+//     totalPrice: 15,
+//   },
+// ];
 
 function Cart() {
-  const cart = useSelector((state) => state.cart.cart);
-  const username = useSelector((state) => state.user.username);
+  const cart = useSelector(getCart);
+  const username = useSelector(getUserName);
+
   const dispatch = useDispatch();
 
   return (
@@ -54,6 +55,7 @@ function Cart() {
           Your cart is empty. Add some pizzas!
         </p>
       )}
+
       <div>
         <h3 className="mb-6 ps-4 pt-2 text-lg font-semibold">
           Total:{' '}

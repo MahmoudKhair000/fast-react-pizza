@@ -50,11 +50,18 @@ export const {
   clearCart,
 } = cartSlice.actions;
 
-export const getTotalCartCount = (state) => {
-  return state.cart.cart.reduce((count, item) => count + item.quantity, 0);
-};
-export const getTotalCartPrice = (state) => {
-  return state.cart.cart.reduce((total, item) => total + item.totalPrice, 0);
-};
+/* All these functions are to be used as a callback function,
+ *  for useSelector() 'react-redux' hook */
+export const getCart = (state) => state.cart.cart;
 
+export const getTotalCartCount = (state) =>
+  state.cart.cart.reduce((count, item) => count + item.quantity, 0);
+
+export const getTotalCartPrice = (state) =>
+  state.cart.cart.reduce((total, item) => total + item.totalPrice, 0);
+
+export const getCurrentQuantityById = (id) => (state) =>
+  state.cart.cart.find((item) => item.pizzaId === id)?.quantity ?? 0;
+
+// Exorting the reducer itself as the default export
 export default cartSlice.reducer;

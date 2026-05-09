@@ -58,8 +58,6 @@ function Order() {
   } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
 
-  // console.log(cart);
-
   return (
     <div className="space-y-6 px-4 py-8">
       <div className="flex flex-wrap items-center justify-between gap-3">
