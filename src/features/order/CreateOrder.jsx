@@ -8,7 +8,7 @@ import OrderCartItem from './OrderListItem';
 import LinkButton from '../../ui/LinkButton';
 import store from '../../store';
 import { clearCart, getCart, getTotalCartPrice } from '../cart/cartSlice';
-import { addOrder, fetchAddress, getUserName } from '../user/userSlice';
+import { addOrder, fetchAddress } from '../user/userSlice';
 import { formatCurrency } from '../../utils/helpers';
 import { useState } from 'react';
 import { useDispatch } from 'react-redux';

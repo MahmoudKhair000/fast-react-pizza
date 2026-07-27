@@ -1,6 +1,6 @@
 // Test ID: XZD9G1
 
-import { useLoaderData } from 'react-router';
+import { useFetcher, useLoaderData } from 'react-router';
 import { getOrder } from '../../services/apiRestaurant';
 import OrderItem from '../order/OrderItem';
 import {
@@ -8,6 +8,7 @@ import {
   formatCurrency,
   formatDate,
 } from '../../utils/helpers';
+import { useEffect } from 'react';
 
 // const order = {
 //   id: "ABCDEF",
@@ -47,6 +48,9 @@ import {
 function Order() {
   const order = useLoaderData();
   // Everyone can search for all orders, so for privacy reasons we're gonna gonna exclude names or address, these are only for the restaurant staff
+
+  const fetcher = useFetcher();
+
   const {
     id,
     status,
@@ -57,6 +61,15 @@ function Order() {
     cart,
   } = order;
   const deliveryIn = calcMinutesLeft(estimatedDelivery);
+
+  useEffect(() => {
+    if (!fetcher.data && fetcher.state === 'idle') {
+      // We use fetcher to load the menu from the menu loader. useFetcher is a hook that allows us to load data from a loader without navigating to a new page.
+      // This is useful for loading data that is needed for the current page, but is not part of the current route. In this case, we need to load the menu to get the ingredients for each pizza in the order.
+      fetcher.load('/menu');
+    }
+    // console.log(fetcher.data?.at(1).ingredients);
+  }, [fetcher]);
 
   return (
     <div className="space-y-6 px-4 py-8">
@@ -86,8 +99,17 @@ function Order() {
       </div>
 
       <ul className="divide-y-2 divide-stone-200 border-y-2">
-        {cart.map((item) => (
-          <OrderItem key={item.pizzaId} item={item} />
+        {cart.map((cartItem) => (
+          <OrderItem
+            key={cartItem.pizzaId}
+            item={cartItem}
+            isLoadingIngredients={fetcher.state === 'loading'}
+            ingredients={
+              fetcher?.data?.find(
+                (menuItem) => menuItem.id === cartItem.pizzaId,
+              ).ingredients ?? []
+            }
+          />
         ))}
       </ul>
 
